@@ -8,39 +8,95 @@ namespace LegacyOrderService
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Welcome to Order Processor!");
-            Console.WriteLine("Enter customer name:");
-            string name = Console.ReadLine() ?? string.Empty;
+            try
+            {
+                Console.WriteLine("Welcome to Order Processor!");
 
-            Console.WriteLine("Enter product name:");
-            string product = Console.ReadLine() ?? string.Empty;
-            var productRepo = new ProductRepository();
-            double price = productRepo.GetPrice(product);
+                // Initialize database
+                var repo = new OrderRepository();
+                try
+                {
+                    repo.InitializeDatabase();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error initializing database: {ex.Message}");
+                    return;
+                }
 
+                // Get and validate customer name
+                Console.WriteLine("Enter customer name:");
+                string name = Console.ReadLine() ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    Console.WriteLine("Error: Customer name cannot be empty.");
+                    return;
+                }
 
-            Console.WriteLine("Enter quantity:");
-            int qty = Convert.ToInt32(Console.ReadLine());
+                // Get and validate product name
+                Console.WriteLine("Enter product name:");
+                string product = Console.ReadLine() ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(product))
+                {
+                    Console.WriteLine("Error: Product name cannot be empty.");
+                    return;
+                }
 
-            Console.WriteLine("Processing order...");
+                // Get product price with error handling
+                var productRepo = new ProductRepository();
+                double price;
+                try
+                {
+                    price = productRepo.GetPrice(product);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                    return;
+                }
 
-            Order order = new Order();
-            order.CustomerName = name;
-            order.ProductName = product;
-            order.Quantity = qty;
-            order.Price = price;
+                // Get and validate quantity
+                Console.WriteLine("Enter quantity:");
+                int qty;
+                string? qtyInput = Console.ReadLine();
+                if (!int.TryParse(qtyInput, out qty) || qty <= 0)
+                {
+                    Console.WriteLine("Error: Quantity must be a positive number.");
+                    return;
+                }
 
-            double total = order.Quantity * order.Price;
+                Console.WriteLine("Processing order...");
 
-            Console.WriteLine("Order complete!");
-            Console.WriteLine("Customer: " + order.CustomerName);
-            Console.WriteLine("Product: " + order.ProductName);
-            Console.WriteLine("Quantity: " + order.Quantity);
-            Console.WriteLine("Total: $" + total);
+                Order order = new Order();
+                order.CustomerName = name;
+                order.ProductName = product;
+                order.Quantity = qty;
+                order.Price = price;
 
-            Console.WriteLine("Saving order to database...");
-            var repo = new OrderRepository();
-            repo.Save(order);
-            Console.WriteLine("Done.");
+                double total = order.Quantity * order.Price;
+
+                Console.WriteLine("Order complete!");
+                Console.WriteLine("Customer: " + order.CustomerName);
+                Console.WriteLine("Product: " + order.ProductName);
+                Console.WriteLine("Quantity: " + order.Quantity);
+                Console.WriteLine("Total: $" + total);
+
+                // Save order with error handling
+                Console.WriteLine("Saving order to database...");
+                try
+                {
+                    repo.Save(order);
+                    Console.WriteLine("Done.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error saving order: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            }
         }
     }
 }
