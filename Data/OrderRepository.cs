@@ -11,26 +11,36 @@ namespace LegacyOrderService.Data
 
         public void Save(Order order)
         {
-            var connection = new SqliteConnection(_connectionString);
-            
+            using var connection = new SqliteConnection(_connectionString);
             connection.Open();
 
-            var command = connection.CreateCommand();
-            command.CommandText = $@"
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
                 INSERT INTO Orders (CustomerName, ProductName, Quantity, Price)
-                VALUES ('{order.CustomerName}', '{order.ProductName}', {order.Quantity}, {order.Price})";
+                VALUES (@CustomerName, @ProductName, @Quantity, @Price)";
 
-            command.ExecuteNonQuery();            
+            command.Parameters.AddWithValue("@CustomerName", order.CustomerName);
+            command.Parameters.AddWithValue("@ProductName", order.ProductName);
+            command.Parameters.AddWithValue("@Quantity", order.Quantity);
+            command.Parameters.AddWithValue("@Price", order.Price);
+
+            command.ExecuteNonQuery();
         }
 
         public void SeedBadData()
         {
-            var connection = new SqliteConnection(_connectionString);            
+            using var connection = new SqliteConnection(_connectionString);
             connection.Open();
-            var cmd = connection.CreateCommand();
-            cmd.CommandText = "INSERT INTO Orders (CustomerName, ProductName, Quantity, Price) VALUES ('John', 'Widget', 9999, 9.99)";
-            cmd.ExecuteNonQuery();
             
+            using var command = connection.CreateCommand();
+            command.CommandText = "INSERT INTO Orders (CustomerName, ProductName, Quantity, Price) VALUES (@CustomerName, @ProductName, @Quantity, @Price)";
+            
+            command.Parameters.AddWithValue("@CustomerName", "John");
+            command.Parameters.AddWithValue("@ProductName", "Widget");
+            command.Parameters.AddWithValue("@Quantity", 9999);
+            command.Parameters.AddWithValue("@Price", 9.99);
+            
+            command.ExecuteNonQuery();
         }
     }
 }
