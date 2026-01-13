@@ -8,6 +8,23 @@ namespace LegacyOrderService.Data
     {
         private string _connectionString = $"Data Source={Path.Combine(AppContext.BaseDirectory, "orders.db")}";
 
+        public void InitializeDatabase()
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            connection.Open();
+
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                create table if not exists Orders (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    CustomerName TEXT NOT NULL,
+                    ProductName TEXT NOT NULL,
+                    Quantity INTEGER NOT NULL,
+                    Price REAL NOT NULL
+                )";
+
+            command.ExecuteNonQuery();
+        }
 
         public void Save(Order order)
         {
