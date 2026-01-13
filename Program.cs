@@ -10,10 +10,10 @@ namespace LegacyOrderService
         {
             Console.WriteLine("Welcome to Order Processor!");
             Console.WriteLine("Enter customer name:");
-            string name = Console.ReadLine();
+            string name = Console.ReadLine() ?? string.Empty;
 
             Console.WriteLine("Enter product name:");
-            string product = Console.ReadLine();
+            string product = Console.ReadLine() ?? string.Empty;
             var productRepo = new ProductRepository();
             double price = productRepo.GetPrice(product);
 
