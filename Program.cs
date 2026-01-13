@@ -1,6 +1,7 @@
 using System;
 using LegacyOrderService.Models;
 using LegacyOrderService.Data;
+using LegacyOrderService.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LegacyOrderService
@@ -13,6 +14,9 @@ namespace LegacyOrderService
             var serviceProvider = new ServiceCollection()
                 .AddSingleton<IOrderRepository, OrderRepository>()
                 .AddSingleton<IProductRepository, ProductRepository>()
+                .AddSingleton<IOrderService, OrderService>()
+                .AddSingleton<IProductService, ProductService>()
+                .AddSingleton<IInputValidationService, InputValidationService>()
                 .BuildServiceProvider();
 
             try
@@ -31,30 +35,34 @@ namespace LegacyOrderService
                     return;
                 }
 
+                // Get services
+                var validationService = serviceProvider.GetRequiredService<IInputValidationService>();
+                var productService = serviceProvider.GetRequiredService<IProductService>();
+                var orderService = serviceProvider.GetRequiredService<IOrderService>();
+
                 // Get and validate customer name
                 Console.WriteLine("Enter customer name:");
                 string name = Console.ReadLine() ?? string.Empty;
-                if (string.IsNullOrWhiteSpace(name))
+                if (!validationService.ValidateCustomerName(name, out string nameError))
                 {
-                    Console.WriteLine("Error: Customer name cannot be empty.");
+                    Console.WriteLine($"Error: {nameError}");
                     return;
                 }
 
                 // Get and validate product name
                 Console.WriteLine("Enter product name:");
                 string product = Console.ReadLine() ?? string.Empty;
-                if (string.IsNullOrWhiteSpace(product))
+                if (!validationService.ValidateProductName(product, out string productError))
                 {
-                    Console.WriteLine("Error: Product name cannot be empty.");
+                    Console.WriteLine($"Error: {productError}");
                     return;
                 }
 
-                // Get product price with error handling using DI
-                var productRepo = serviceProvider.GetRequiredService<IProductRepository>();
+                // Get product price with error handling
                 double price;
                 try
                 {
-                    price = productRepo.GetPrice(product);
+                    price = productService.GetProductPrice(product);
                 }
                 catch (Exception ex)
                 {
@@ -64,23 +72,18 @@ namespace LegacyOrderService
 
                 // Get and validate quantity
                 Console.WriteLine("Enter quantity:");
-                int qty;
                 string? qtyInput = Console.ReadLine();
-                if (!int.TryParse(qtyInput, out qty) || qty <= 0)
+                if (!validationService.ValidateQuantity(qtyInput ?? string.Empty, out int quantity, out string qtyError))
                 {
-                    Console.WriteLine("Error: Quantity must be a positive number.");
+                    Console.WriteLine($"Error: {qtyError}");
                     return;
                 }
 
                 Console.WriteLine("Processing order...");
 
-                Order order = new Order();
-                order.CustomerName = name;
-                order.ProductName = product;
-                order.Quantity = qty;
-                order.Price = price;
-
-                double total = order.Quantity * order.Price;
+                // Create order using service
+                Order order = orderService.CreateOrder(name, product, quantity, price);
+                double total = orderService.CalculateTotal(order);
 
                 Console.WriteLine("Order complete!");
                 Console.WriteLine("Customer: " + order.CustomerName);
@@ -92,7 +95,7 @@ namespace LegacyOrderService
                 Console.WriteLine("Saving order to database...");
                 try
                 {
-                    orderRepo.Save(order);
+                    orderService.SaveOrder(order);
                     Console.WriteLine("Done.");
                 }
                 catch (Exception ex)
