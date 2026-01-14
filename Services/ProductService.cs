@@ -11,7 +11,7 @@ namespace LegacyOrderService.Services
             _productRepository = productRepository;
         }
 
-        public double GetProductPrice(string productName)
+        public decimal GetProductPrice(string productName)
         {
             return _productRepository.GetPrice(productName);
         }

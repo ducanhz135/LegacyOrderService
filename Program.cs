@@ -42,8 +42,8 @@ namespace LegacyOrderService
 
                 // Get and validate customer name
                 Console.WriteLine("Enter customer name:");
-                string name = Console.ReadLine() ?? string.Empty;
-                if (!validationService.ValidateCustomerName(name, out string nameError))
+                string customerName = Console.ReadLine() ?? string.Empty;
+                if (!validationService.ValidateCustomerName(customerName, out string nameError))
                 {
                     Console.WriteLine($"Error: {nameError}");
                     return;
@@ -51,18 +51,18 @@ namespace LegacyOrderService
 
                 // Get and validate product name
                 Console.WriteLine("Enter product name:");
-                string product = Console.ReadLine() ?? string.Empty;
-                if (!validationService.ValidateProductName(product, out string productError))
+                string productName = Console.ReadLine() ?? string.Empty;
+                if (!validationService.ValidateProductName(productName, out string productError))
                 {
                     Console.WriteLine($"Error: {productError}");
                     return;
                 }
 
                 // Get product price with error handling
-                double price;
+                decimal price;
                 try
                 {
-                    price = productService.GetProductPrice(product);
+                    price = productService.GetProductPrice(productName);
                 }
                 catch (Exception ex)
                 {
@@ -72,24 +72,24 @@ namespace LegacyOrderService
 
                 // Get and validate quantity
                 Console.WriteLine("Enter quantity:");
-                string? qtyInput = Console.ReadLine();
-                if (!validationService.ValidateQuantity(qtyInput ?? string.Empty, out int quantity, out string qtyError))
+                string? quantityInput = Console.ReadLine();
+                if (!validationService.ValidateQuantity(quantityInput ?? string.Empty, out int quantity, out string quantityError))
                 {
-                    Console.WriteLine($"Error: {qtyError}");
+                    Console.WriteLine($"Error: {quantityError}");
                     return;
                 }
 
                 Console.WriteLine("Processing order...");
 
                 // Create order using service
-                Order order = orderService.CreateOrder(name, product, quantity, price);
-                double total = orderService.CalculateTotal(order);
+                Order order = orderService.CreateOrder(customerName, productName, quantity, price);
+                decimal total = orderService.CalculateTotal(order);
 
                 Console.WriteLine("Order complete!");
-                Console.WriteLine("Customer: " + order.CustomerName);
-                Console.WriteLine("Product: " + order.ProductName);
-                Console.WriteLine("Quantity: " + order.Quantity);
-                Console.WriteLine("Total: $" + total);
+                Console.WriteLine($"Customer: {order.CustomerName}");
+                Console.WriteLine($"Product: {order.ProductName}");
+                Console.WriteLine($"Quantity: {order.Quantity}");
+                Console.WriteLine($"Total: ${total:F2}");
 
                 // Save order with error handling
                 Console.WriteLine("Saving order to database...");
