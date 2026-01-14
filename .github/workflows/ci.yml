@@ -1,0 +1,44 @@
+# CI Pipeline - Runs on every push and pull request
+# Purpose: Build the code and run all tests to ensure quality
+
+name: CI - Build and Test
+
+# When should this workflow run?
+on:
+  push:
+    branches: [ main, develop ]  # Run on push to main or develop
+  pull_request:
+    branches: [ main ]           # Run on pull requests to main
+
+jobs:
+  # Job 1: Build and Test
+  build-and-test:
+    name: Build and Run Tests
+    runs-on: ubuntu-latest  # Use Ubuntu Linux runner
+    
+    steps:
+    # Step 1: Get the code from GitHub
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    # Step 2: Install .NET SDK 8.0
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    
+    # Step 3: Download all NuGet packages
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    # Step 4: Compile the code
+    - name: Build project
+      run: dotnet build --no-restore --configuration Release
+    
+    # Step 5: Run all unit tests
+    - name: Run tests
+      run: dotnet test --no-build --configuration Release --verbosity normal
+    
+    # Step 6: Show success message
+    - name: Success
+      run: echo "✅ Build and tests passed!"

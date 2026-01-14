@@ -1,0 +1,24 @@
+# Ignore build outputs
+bin/
+obj/
+
+# Ignore database files
+*.db
+*.sqlite
+
+# Ignore IDE files
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Ignore test results
+TestResults/
+coverage/
+
+# Ignore Git
+.git/
+.gitignore
+
+# Ignore CI/CD files (already in image)
+.github/
