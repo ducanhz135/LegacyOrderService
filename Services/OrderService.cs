@@ -16,6 +16,7 @@ namespace LegacyOrderService.Services
         {
             return new Order
             {
+                Id = Guid.NewGuid().ToString(),
                 CustomerName = customerName,
                 ProductName = productName,
                 Quantity = quantity,

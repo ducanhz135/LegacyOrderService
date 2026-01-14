@@ -16,13 +16,17 @@ namespace LegacyOrderService.Data
             await using var command = connection.CreateCommand();
             command.CommandText = @"
                 CREATE TABLE IF NOT EXISTS Orders (
-                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Id TEXT PRIMARY KEY,
                     CustomerName TEXT NOT NULL,
                     ProductName TEXT NOT NULL,
                     Quantity INTEGER NOT NULL,
                     Price REAL NOT NULL,
                     CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP
-                );";
+                );
+                -- create indexes for performance improvement in the future
+                CREATE INDEX IX_Orders_CreatedAt ON Orders(CreatedAt);
+                CREATE INDEX IX_Orders_CustomerName ON Orders(CustomerName);
+                CREATE INDEX IX_Orders_ProductName ON Orders(ProductName);";
 
             await command.ExecuteNonQueryAsync();
         }
@@ -34,9 +38,10 @@ namespace LegacyOrderService.Data
 
             await using var command = connection.CreateCommand();
             command.CommandText = @"
-                INSERT INTO Orders (CustomerName, ProductName, Quantity, Price)
-                VALUES (@CustomerName, @ProductName, @Quantity, @Price)";
+                INSERT INTO Orders (Id, CustomerName, ProductName, Quantity, Price)
+                VALUES (@Id, @CustomerName, @ProductName, @Quantity, @Price)";
 
+            command.Parameters.AddWithValue("@Id", order.Id);
             command.Parameters.AddWithValue("@CustomerName", order.CustomerName);
             command.Parameters.AddWithValue("@ProductName", order.ProductName);
             command.Parameters.AddWithValue("@Quantity", order.Quantity);
@@ -51,8 +56,9 @@ namespace LegacyOrderService.Data
             await connection.OpenAsync();
             
             await using var command = connection.CreateCommand();
-            command.CommandText = "INSERT INTO Orders (CustomerName, ProductName, Quantity, Price) VALUES (@CustomerName, @ProductName, @Quantity, @Price)";
+            command.CommandText = "INSERT INTO Orders (Id, CustomerName, ProductName, Quantity, Price) VALUES (@Id, @CustomerName, @ProductName, @Quantity, @Price)";
             
+            command.Parameters.AddWithValue("@Id", Guid.NewGuid().ToString());
             command.Parameters.AddWithValue("@CustomerName", "John");
             command.Parameters.AddWithValue("@ProductName", "Widget");
             command.Parameters.AddWithValue("@Quantity", 9999);
