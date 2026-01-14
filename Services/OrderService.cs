@@ -12,7 +12,7 @@ namespace LegacyOrderService.Services
             _orderRepository = orderRepository;
         }
 
-        public Order CreateOrder(string customerName, string productName, int quantity, double price)
+        public Order CreateOrder(string customerName, string productName, int quantity, decimal price)
         {
             return new Order
             {
@@ -23,7 +23,7 @@ namespace LegacyOrderService.Services
             };
         }
 
-        public double CalculateTotal(Order order)
+        public decimal CalculateTotal(Order order)
         {
             return order.Quantity * order.Price;
         }
