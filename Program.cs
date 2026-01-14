@@ -3,15 +3,17 @@ using LegacyOrderService.Models;
 using LegacyOrderService.Data;
 using LegacyOrderService.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace LegacyOrderService
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             // Setup dependency injection
             var serviceProvider = new ServiceCollection()
+                .AddMemoryCache()
                 .AddSingleton<IOrderRepository, OrderRepository>()
                 .AddSingleton<IProductRepository, ProductRepository>()
                 .AddSingleton<IOrderService, OrderService>()
@@ -27,7 +29,7 @@ namespace LegacyOrderService
                 var orderRepo = serviceProvider.GetRequiredService<IOrderRepository>();
                 try
                 {
-                    orderRepo.InitializeDatabase();
+                    await orderRepo.InitializeDatabaseAsync();
                 }
                 catch (Exception ex)
                 {
@@ -95,7 +97,7 @@ namespace LegacyOrderService
                 Console.WriteLine("Saving order to database...");
                 try
                 {
-                    orderService.SaveOrder(order);
+                    await orderService.SaveOrderAsync(order);
                     Console.WriteLine("Done.");
                 }
                 catch (Exception ex)
