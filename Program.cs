@@ -3,6 +3,7 @@ using LegacyOrderService.Data;
 using LegacyOrderService.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 
 namespace LegacyOrderService;
 
@@ -10,8 +11,15 @@ class Program
 {
     static async Task Main(string[] args)
         {
+            // Build configuration
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
             // Setup dependency injection
             var serviceProvider = new ServiceCollection()
+                .AddSingleton<IConfiguration>(configuration)
                 .AddMemoryCache()
                 .AddSingleton<IOrderRepository, OrderRepository>()
                 .AddSingleton<IProductRepository, ProductRepository>()

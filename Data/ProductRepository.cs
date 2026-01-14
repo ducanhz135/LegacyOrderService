@@ -12,11 +12,13 @@ public class ProductRepository : IProductRepository
             ["Doohickey"] = 8.75m
         };
         private readonly IMemoryCache _cache;
-        private static readonly TimeSpan CacheExpiration = TimeSpan.FromMinutes(5);
+        private readonly TimeSpan _cacheExpiration;
 
-        public ProductRepository(IMemoryCache cache)
+        public ProductRepository(IMemoryCache cache, IConfiguration configuration)
         {
             _cache = cache;
+            var expirationMinutes = configuration.GetValue<int>("Caching:ProductPriceCacheExpirationMinutes");
+            _cacheExpiration = TimeSpan.FromMinutes(expirationMinutes);
         }
 
         public decimal GetPrice(string productName)
@@ -30,7 +32,7 @@ public class ProductRepository : IProductRepository
             if (_productPrices.TryGetValue(productName, out var price))
             {
                 // Store in cache for future requests
-                _cache.Set($"product_price_{productName}", price, CacheExpiration);
+                _cache.Set($"product_price_{productName}", price, _cacheExpiration);
                 return price;
             }
 
