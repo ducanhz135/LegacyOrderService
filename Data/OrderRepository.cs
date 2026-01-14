@@ -23,9 +23,9 @@ public class OrderRepository : IOrderRepository
                     CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP
                 );
                 -- create indexes for performance improvement in the future
-                CREATE INDEX IX_Orders_CreatedAt ON Orders(CreatedAt);
-                CREATE INDEX IX_Orders_CustomerName ON Orders(CustomerName);
-                CREATE INDEX IX_Orders_ProductName ON Orders(ProductName);";
+                CREATE INDEX IF NOT EXISTS IX_Orders_CreatedAt ON Orders(CreatedAt);
+                CREATE INDEX IF NOT EXISTS IX_Orders_CustomerName ON Orders(CustomerName);
+                CREATE INDEX IF NOT EXISTS IX_Orders_ProductName ON Orders(ProductName);";
 
             await command.ExecuteNonQueryAsync();
         }
