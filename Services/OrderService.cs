@@ -1,10 +1,10 @@
 using LegacyOrderService.Data;
 using LegacyOrderService.Models;
 
-namespace LegacyOrderService.Services
+namespace LegacyOrderService.Services;
+
+public class OrderService : IOrderService
 {
-    public class OrderService : IOrderService
-    {
         private readonly IOrderRepository _orderRepository;
 
         public OrderService(IOrderRepository orderRepository)
@@ -34,4 +34,3 @@ namespace LegacyOrderService.Services
             await _orderRepository.SaveAsync(order);
         }
     }
-}

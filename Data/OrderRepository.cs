@@ -1,11 +1,10 @@
-using System;
 using Microsoft.Data.Sqlite;
 using LegacyOrderService.Models;
 
-namespace LegacyOrderService.Data
+namespace LegacyOrderService.Data;
+
+public class OrderRepository : IOrderRepository
 {
-    public class OrderRepository : IOrderRepository
-    {
         private readonly string _connectionString = $"Data Source={Path.Combine(AppContext.BaseDirectory, "orders.db")}";
 
         public async Task InitializeDatabaseAsync()
@@ -24,9 +23,9 @@ namespace LegacyOrderService.Data
                     CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP
                 );
                 -- create indexes for performance improvement in the future
-                CREATE INDEX IX_Orders_CreatedAt ON Orders(CreatedAt);
-                CREATE INDEX IX_Orders_CustomerName ON Orders(CustomerName);
-                CREATE INDEX IX_Orders_ProductName ON Orders(ProductName);";
+                CREATE INDEX IF NOT EXISTS IX_Orders_CreatedAt ON Orders(CreatedAt);
+                CREATE INDEX IF NOT EXISTS IX_Orders_CustomerName ON Orders(CustomerName);
+                CREATE INDEX IF NOT EXISTS IX_Orders_ProductName ON Orders(ProductName);";
 
             await command.ExecuteNonQueryAsync();
         }
@@ -67,4 +66,3 @@ namespace LegacyOrderService.Data
             await command.ExecuteNonQueryAsync();
         }
     }
-}

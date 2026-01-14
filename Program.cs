@@ -1,15 +1,14 @@
-using System;
 using LegacyOrderService.Models;
 using LegacyOrderService.Data;
 using LegacyOrderService.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace LegacyOrderService
+namespace LegacyOrderService;
+
+class Program
 {
-    class Program
-    {
-        static async Task Main(string[] args)
+    static async Task Main(string[] args)
         {
             // Setup dependency injection
             var serviceProvider = new ServiceCollection()
@@ -111,4 +110,3 @@ namespace LegacyOrderService
             }
         }
     }
-}

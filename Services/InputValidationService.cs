@@ -1,7 +1,7 @@
-namespace LegacyOrderService.Services
+namespace LegacyOrderService.Services;
+
+public class InputValidationService : IInputValidationService
 {
-    public class InputValidationService : IInputValidationService
-    {
         public bool ValidateCustomerName(string name, out string errorMessage)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -38,4 +38,3 @@ namespace LegacyOrderService.Services
             return true;
         }
     }
-}

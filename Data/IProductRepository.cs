@@ -1,7 +1,6 @@
-namespace LegacyOrderService.Data
+namespace LegacyOrderService.Data;
+
+public interface IProductRepository
 {
-    public interface IProductRepository
-    {
-        decimal GetPrice(string productName);
-    }
+    decimal GetPrice(string productName);
 }

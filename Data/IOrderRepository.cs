@@ -1,10 +1,9 @@
 using LegacyOrderService.Models;
 
-namespace LegacyOrderService.Data
+namespace LegacyOrderService.Data;
+
+public interface IOrderRepository
 {
-    public interface IOrderRepository
-    {
-        Task InitializeDatabaseAsync();
-        Task SaveAsync(Order order);
-    }
+    Task InitializeDatabaseAsync();
+    Task SaveAsync(Order order);
 }
