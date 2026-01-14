@@ -1,11 +1,10 @@
-using System;
 using Microsoft.Data.Sqlite;
 using LegacyOrderService.Models;
 
-namespace LegacyOrderService.Data
+namespace LegacyOrderService.Data;
+
+public class OrderRepository : IOrderRepository
 {
-    public class OrderRepository : IOrderRepository
-    {
         private readonly string _connectionString = $"Data Source={Path.Combine(AppContext.BaseDirectory, "orders.db")}";
 
         public async Task InitializeDatabaseAsync()
@@ -67,4 +66,3 @@ namespace LegacyOrderService.Data
             await command.ExecuteNonQueryAsync();
         }
     }
-}

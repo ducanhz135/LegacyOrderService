@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace LegacyOrderService.Data
+namespace LegacyOrderService.Data;
+
+public class ProductRepository : IProductRepository
 {
-    public class ProductRepository : IProductRepository
-    {
         private readonly Dictionary<string, decimal> _productPrices = new()
         {
             ["Widget"] = 12.99m,
@@ -38,4 +37,3 @@ namespace LegacyOrderService.Data
             throw new Exception("Product not found");
         }
     }
-}
