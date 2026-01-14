@@ -4,6 +4,7 @@ using LegacyOrderService.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace LegacyOrderService;
 
@@ -20,6 +21,11 @@ class Program
             // Setup dependency injection
             var serviceProvider = new ServiceCollection()
                 .AddSingleton<IConfiguration>(configuration)
+                .AddLogging(builder =>
+                {
+                    builder.AddConsole();
+                    builder.SetMinimumLevel(LogLevel.Information);
+                })
                 .AddMemoryCache()
                 .AddSingleton<IOrderRepository, OrderRepository>()
                 .AddSingleton<IProductRepository, ProductRepository>()
@@ -28,19 +34,22 @@ class Program
                 .AddSingleton<IInputValidationService, InputValidationService>()
                 .BuildServiceProvider();
 
+            var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+
             try
             {
-                Console.WriteLine("Welcome to Order Processor!");
+                logger.LogInformation("Welcome to Order Processor!");
 
                 // Initialize database using DI
                 var orderRepo = serviceProvider.GetRequiredService<IOrderRepository>();
                 try
                 {
                     await orderRepo.InitializeDatabaseAsync();
+                    logger.LogInformation("Database initialized successfully");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error initializing database: {ex.Message}");
+                    logger.LogError(ex, "Error initializing database");
                     return;
                 }
 
@@ -54,6 +63,7 @@ class Program
                 string customerName = Console.ReadLine() ?? string.Empty;
                 if (!validationService.ValidateCustomerName(customerName, out string nameError))
                 {
+                    logger.LogWarning("Customer name validation failed: {Error}", nameError);
                     Console.WriteLine($"Error: {nameError}");
                     return;
                 }
@@ -63,6 +73,7 @@ class Program
                 string productName = Console.ReadLine() ?? string.Empty;
                 if (!validationService.ValidateProductName(productName, out string productError))
                 {
+                    logger.LogWarning("Product name validation failed: {Error}", productError);
                     Console.WriteLine($"Error: {productError}");
                     return;
                 }
@@ -72,9 +83,11 @@ class Program
                 try
                 {
                     price = productService.GetProductPrice(productName);
+                    logger.LogInformation("Retrieved price for {ProductName}: {Price:C}", productName, price);
                 }
                 catch (Exception ex)
                 {
+                    logger.LogError(ex, "Error retrieving product price for {ProductName}", productName);
                     Console.WriteLine($"Error: {ex.Message}");
                     return;
                 }
@@ -84,16 +97,18 @@ class Program
                 string? quantityInput = Console.ReadLine();
                 if (!validationService.ValidateQuantity(quantityInput ?? string.Empty, out int quantity, out string quantityError))
                 {
+                    logger.LogWarning("Quantity validation failed: {Error}", quantityError);
                     Console.WriteLine($"Error: {quantityError}");
                     return;
                 }
 
-                Console.WriteLine("Processing order...");
+                logger.LogInformation("Processing order for {CustomerName}: {Quantity} x {ProductName}", customerName, quantity, productName);
 
                 // Create order using service
                 Order order = orderService.CreateOrder(customerName, productName, quantity, price);
                 decimal total = orderService.CalculateTotal(order);
 
+                logger.LogInformation("Order created: {OrderId}", order.Id);
                 Console.WriteLine("Order complete!");
                 Console.WriteLine($"Customer: {order.CustomerName}");
                 Console.WriteLine($"Product: {order.ProductName}");
@@ -101,19 +116,22 @@ class Program
                 Console.WriteLine($"Total: ${total:F2}");
 
                 // Save order with error handling
-                Console.WriteLine("Saving order to database...");
+                logger.LogInformation("Saving order {OrderId} to database", order.Id);
                 try
                 {
                     await orderService.SaveOrderAsync(order);
+                    logger.LogInformation("Order {OrderId} saved successfully", order.Id);
                     Console.WriteLine("Done.");
                 }
                 catch (Exception ex)
                 {
+                    logger.LogError(ex, "Error saving order {OrderId}", order.Id);
                     Console.WriteLine($"Error saving order: {ex.Message}");
                 }
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "An unexpected error occurred");
                 Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
         }

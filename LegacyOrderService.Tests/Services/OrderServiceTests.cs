@@ -3,18 +3,21 @@ using LegacyOrderService.Data;
 using LegacyOrderService.Models;
 using LegacyOrderService.Services;
 using Moq;
+using Microsoft.Extensions.Logging;
 
 namespace LegacyOrderService.Tests.Services;
 
 public class OrderServiceTests
 {
     private readonly Mock<IOrderRepository> _mockOrderRepository;
+    private readonly Mock<ILogger<OrderService>> _mockLogger;
     private readonly OrderService _orderService;
 
     public OrderServiceTests()
     {
         _mockOrderRepository = new Mock<IOrderRepository>();
-        _orderService = new OrderService(_mockOrderRepository.Object);
+        _mockLogger = new Mock<ILogger<OrderService>>();
+        _orderService = new OrderService(_mockOrderRepository.Object, _mockLogger.Object);
     }
 
     [Fact]

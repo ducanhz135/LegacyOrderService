@@ -2,18 +2,21 @@ using Xunit;
 using LegacyOrderService.Data;
 using LegacyOrderService.Services;
 using Moq;
+using Microsoft.Extensions.Logging;
 
 namespace LegacyOrderService.Tests.Services;
 
 public class ProductServiceTests
 {
     private readonly Mock<IProductRepository> _mockProductRepository;
+    private readonly Mock<ILogger<ProductService>> _mockLogger;
     private readonly ProductService _productService;
 
     public ProductServiceTests()
     {
         _mockProductRepository = new Mock<IProductRepository>();
-        _productService = new ProductService(_mockProductRepository.Object);
+        _mockLogger = new Mock<ILogger<ProductService>>();
+        _productService = new ProductService(_mockProductRepository.Object, _mockLogger.Object);
     }
 
     [Fact]
