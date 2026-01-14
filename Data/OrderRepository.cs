@@ -55,21 +55,4 @@ public class OrderRepository : IOrderRepository
 
             await command.ExecuteNonQueryAsync();
         }
-
-        public async Task SeedBadDataAsync()
-        {
-            await using var connection = new SqliteConnection(_connectionString);
-            await connection.OpenAsync();
-            
-            await using var command = connection.CreateCommand();
-            command.CommandText = "INSERT INTO Orders (Id, CustomerName, ProductName, Quantity, Price) VALUES (@Id, @CustomerName, @ProductName, @Quantity, @Price)";
-            
-            command.Parameters.AddWithValue("@Id", Guid.NewGuid().ToString());
-            command.Parameters.AddWithValue("@CustomerName", "John");
-            command.Parameters.AddWithValue("@ProductName", "Widget");
-            command.Parameters.AddWithValue("@Quantity", 9999);
-            command.Parameters.AddWithValue("@Price", 9.99);
-            
-            await command.ExecuteNonQueryAsync();
-        }
     }
