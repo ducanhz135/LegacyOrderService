@@ -28,9 +28,9 @@ namespace LegacyOrderService.Services
             return order.Quantity * order.Price;
         }
 
-        public void SaveOrder(Order order)
+        public async Task SaveOrderAsync(Order order)
         {
-            _orderRepository.Save(order);
+            await _orderRepository.SaveAsync(order);
         }
     }
 }

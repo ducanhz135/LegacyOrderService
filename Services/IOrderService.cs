@@ -6,6 +6,6 @@ namespace LegacyOrderService.Services
     {
         Order CreateOrder(string customerName, string productName, int quantity, decimal price);
         decimal CalculateTotal(Order order);
-        void SaveOrder(Order order);
+        Task SaveOrderAsync(Order order);
     }
 }
