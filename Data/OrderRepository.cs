@@ -1,11 +1,18 @@
 using Microsoft.Data.Sqlite;
 using LegacyOrderService.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace LegacyOrderService.Data;
 
 public class OrderRepository : IOrderRepository
 {
-        private readonly string _connectionString = $"Data Source={Path.Combine(AppContext.BaseDirectory, "orders.db")}";
+        private readonly string _connectionString;
+
+        public OrderRepository(IConfiguration configuration)
+        {
+            _connectionString = configuration.GetConnectionString("OrderDatabase")
+                ?? throw new InvalidOperationException("OrderDatabase connection string not found in configuration");
+        }
 
         public async Task InitializeDatabaseAsync()
         {
